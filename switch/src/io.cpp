@@ -173,21 +173,20 @@ bool IO::VideoCB(uint8_t *buf, size_t buf_size)
 {
 	// callback function to decode video buffer
 
-	AVPacket packet;
-	av_init_packet(&packet);
-	packet.data = buf;
-	packet.size = buf_size;
+	AVPacket *packet = av_packet_alloc();
+	packet->data = buf;
+	packet->size = buf_size;
 	AVFrame *frame = av_frame_alloc();
 	if(!frame)
 	{
 		CHIAKI_LOGE(this->log, "UpdateFrame Failed to alloc AVFrame");
-		av_packet_unref(&packet);
+		av_packet_free(&packet);
 		return false;
 	}
 
 send_packet:
 	// Push
-	int r = avcodec_send_packet(this->codec_context, &packet);
+	int r = avcodec_send_packet(this->codec_context, packet);
 	if(r != 0)
 	{
 		if(r == AVERROR(EAGAIN))
@@ -199,7 +198,7 @@ send_packet:
 			{
 				CHIAKI_LOGE(this->log, "Failed to pull frame");
 				av_frame_free(&frame);
-				av_packet_unref(&packet);
+				av_packet_free(&packet);
 				return false;
 			}
 			goto send_packet;
@@ -210,7 +209,7 @@ send_packet:
 			av_make_error_string(errbuf, sizeof(errbuf), r);
 			CHIAKI_LOGE(this->log, "Failed to push frame: %s", errbuf);
 			av_frame_free(&frame);
-			av_packet_unref(&packet);
+			av_packet_free(&packet);
 			return false;
 		}
 	}
@@ -224,7 +223,7 @@ send_packet:
 		CHIAKI_LOGE(this->log, "Failed to pull frame");
 
 	av_frame_free(&frame);
-	av_packet_unref(&packet);
+	av_packet_free(&packet);
 	return true;
 }
 
