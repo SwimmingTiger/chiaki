@@ -524,6 +524,17 @@ bool IO::ReadGameSixAxis(ChiakiControllerState *state)
 #endif
 }
 
+static inline void combinationKeyDown(uint32_t &buttons, uint32_t keys, uint32_t targetKey) {
+	if ((buttons & keys) == keys) {
+		buttons &= ~keys;
+		buttons |= targetKey;
+	}
+}
+
+static inline void combinationKeyUp(uint32_t &buttons, uint32_t targetKey) {
+	buttons &= ~targetKey;
+}
+
 bool IO::ReadGameKeys(SDL_Event *event, ChiakiControllerState *state)
 {
 	// return true if an event changed (gamepad input)
@@ -594,6 +605,9 @@ bool IO::ReadGameKeys(SDL_Event *event, ChiakiControllerState *state)
 					break; // KEY_DRIGHT
 				case 13:
 					state->buttons |= CHIAKI_CONTROLLER_BUTTON_DPAD_UP;
+					combinationKeyDown(state->buttons,
+						CHIAKI_CONTROLLER_BUTTON_DPAD_UP | CHIAKI_CONTROLLER_BUTTON_OPTIONS,
+						CHIAKI_CONTROLLER_BUTTON_SHARE);
 					break; // KEY_DUP
 				case 15:
 					state->buttons |= CHIAKI_CONTROLLER_BUTTON_DPAD_DOWN;
@@ -618,6 +632,9 @@ bool IO::ReadGameKeys(SDL_Event *event, ChiakiControllerState *state)
 					break; // KEY_RSTICK
 				case 10:
 					state->buttons |= CHIAKI_CONTROLLER_BUTTON_OPTIONS;
+					combinationKeyDown(state->buttons,
+						CHIAKI_CONTROLLER_BUTTON_DPAD_UP | CHIAKI_CONTROLLER_BUTTON_OPTIONS,
+						CHIAKI_CONTROLLER_BUTTON_SHARE);
 					break; // KEY_PLUS
 				// FIXME
 				// case 11: state->buttons |= CHIAKI_CONTROLLER_BUTTON_SHARE; break; // KEY_MINUS
@@ -634,34 +651,35 @@ bool IO::ReadGameKeys(SDL_Event *event, ChiakiControllerState *state)
 			switch(event->jbutton.button)
 			{
 				case 0:
-					state->buttons ^= CHIAKI_CONTROLLER_BUTTON_MOON;
+					state->buttons &= ~CHIAKI_CONTROLLER_BUTTON_MOON;
 					break; // KEY_A
 				case 1:
-					state->buttons ^= CHIAKI_CONTROLLER_BUTTON_CROSS;
+					state->buttons &= ~CHIAKI_CONTROLLER_BUTTON_CROSS;
 					break; // KEY_B
 				case 2:
-					state->buttons ^= CHIAKI_CONTROLLER_BUTTON_PYRAMID;
+					state->buttons &= ~CHIAKI_CONTROLLER_BUTTON_PYRAMID;
 					break; // KEY_X
 				case 3:
-					state->buttons ^= CHIAKI_CONTROLLER_BUTTON_BOX;
+					state->buttons &= ~CHIAKI_CONTROLLER_BUTTON_BOX;
 					break; // KEY_Y
 				case 12:
-					state->buttons ^= CHIAKI_CONTROLLER_BUTTON_DPAD_LEFT;
+					state->buttons &= ~CHIAKI_CONTROLLER_BUTTON_DPAD_LEFT;
 					break; // KEY_DLEFT
 				case 14:
-					state->buttons ^= CHIAKI_CONTROLLER_BUTTON_DPAD_RIGHT;
+					state->buttons &= ~CHIAKI_CONTROLLER_BUTTON_DPAD_RIGHT;
 					break; // KEY_DRIGHT
 				case 13:
-					state->buttons ^= CHIAKI_CONTROLLER_BUTTON_DPAD_UP;
+					state->buttons &= ~CHIAKI_CONTROLLER_BUTTON_DPAD_UP;
+					combinationKeyUp(state->buttons, CHIAKI_CONTROLLER_BUTTON_SHARE);
 					break; // KEY_DUP
 				case 15:
-					state->buttons ^= CHIAKI_CONTROLLER_BUTTON_DPAD_DOWN;
+					state->buttons &= ~CHIAKI_CONTROLLER_BUTTON_DPAD_DOWN;
 					break; // KEY_DDOWN
 				case 6:
-					state->buttons ^= CHIAKI_CONTROLLER_BUTTON_L1;
+					state->buttons &= ~CHIAKI_CONTROLLER_BUTTON_L1;
 					break; // KEY_L
 				case 7:
-					state->buttons ^= CHIAKI_CONTROLLER_BUTTON_R1;
+					state->buttons &= ~CHIAKI_CONTROLLER_BUTTON_R1;
 					break; // KEY_R
 				case 8:
 					state->l2_state = 0x00;
@@ -670,17 +688,18 @@ bool IO::ReadGameKeys(SDL_Event *event, ChiakiControllerState *state)
 					state->r2_state = 0x00;
 					break; // KEY_ZR
 				case 4:
-					state->buttons ^= CHIAKI_CONTROLLER_BUTTON_L3;
+					state->buttons &= ~CHIAKI_CONTROLLER_BUTTON_L3;
 					break; // KEY_LSTICK
 				case 5:
-					state->buttons ^= CHIAKI_CONTROLLER_BUTTON_R3;
+					state->buttons &= ~CHIAKI_CONTROLLER_BUTTON_R3;
 					break; // KEY_RSTICK
 				case 10:
-					state->buttons ^= CHIAKI_CONTROLLER_BUTTON_OPTIONS;
+					state->buttons &= ~CHIAKI_CONTROLLER_BUTTON_OPTIONS;
+					combinationKeyUp(state->buttons, CHIAKI_CONTROLLER_BUTTON_SHARE);
 					break; // KEY_PLUS
-						   //case 11: state->buttons ^= CHIAKI_CONTROLLER_BUTTON_SHARE; break; // KEY_MINUS
+						   //case 11: state->buttons &= ~CHIAKI_CONTROLLER_BUTTON_SHARE; break; // KEY_MINUS
 				case 11:
-					state->buttons ^= CHIAKI_CONTROLLER_BUTTON_PS;
+					state->buttons &= ~CHIAKI_CONTROLLER_BUTTON_PS;
 					break; // KEY_MINUS
 				default:
 					ret = false;
