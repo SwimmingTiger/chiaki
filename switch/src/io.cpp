@@ -586,10 +586,10 @@ bool IO::ReadGameKeys(SDL_Event *event, ChiakiControllerState *state)
 			switch(event->jbutton.button)
 			{
 				case 0:
-					state->buttons |= CHIAKI_CONTROLLER_BUTTON_MOON;
+					state->buttons |= CHIAKI_CONTROLLER_BUTTON_CROSS;
 					break; // KEY_A
 				case 1:
-					state->buttons |= CHIAKI_CONTROLLER_BUTTON_CROSS;
+					state->buttons |= CHIAKI_CONTROLLER_BUTTON_MOON;
 					break; // KEY_B
 				case 2:
 					state->buttons |= CHIAKI_CONTROLLER_BUTTON_PYRAMID;
@@ -651,10 +651,10 @@ bool IO::ReadGameKeys(SDL_Event *event, ChiakiControllerState *state)
 			switch(event->jbutton.button)
 			{
 				case 0:
-					state->buttons &= ~CHIAKI_CONTROLLER_BUTTON_MOON;
+					state->buttons &= ~CHIAKI_CONTROLLER_BUTTON_CROSS;
 					break; // KEY_A
 				case 1:
-					state->buttons &= ~CHIAKI_CONTROLLER_BUTTON_CROSS;
+					state->buttons &= ~CHIAKI_CONTROLLER_BUTTON_MOON;
 					break; // KEY_B
 				case 2:
 					state->buttons &= ~CHIAKI_CONTROLLER_BUTTON_PYRAMID;
